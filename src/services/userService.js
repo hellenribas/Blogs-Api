@@ -35,15 +35,31 @@ const add = async ({ displayName, email, password, image }) => {
  }
 };
 
+const getUsers = async () => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] },
+    });
+    return users;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const getUser = async (id) => {
+   try {
     const user = await User.findOne({
       where: { id },
       attributes: { exclude: ['password'] },
     });
     return user;
+   } catch (e) {
+    console.log(e);
+   }
 };
 
 module.exports = {
   add,
+  getUsers,
   getUser,
 };
