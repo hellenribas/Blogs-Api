@@ -26,6 +26,16 @@ const add = async (name) => {
   }
  };
 
+ const getAll = async () => {
+  try {
+    const categories = await Category.findAll();
+    return categories;
+  } catch (e) {
+    console.log(e);
+  }
+ };
+
 module.exports = {
   add,
+  getAll,
 };

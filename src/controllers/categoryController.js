@@ -9,6 +9,12 @@ const add = async (req, res) => {
   return res.status(201).json(response.dataValues);
 };
 
+const getAll = async (_req, res) => {
+  const categories = await categoryService.getAll();
+  return res.status(200).json(categories);
+};
+
 module.exports = {
   add,
+  getAll,
 };
