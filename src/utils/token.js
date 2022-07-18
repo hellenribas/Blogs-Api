@@ -14,6 +14,12 @@ const generateToken = (object) => {
   return token;
 };
 
+const decoded = (token) => {
+  const secret = process.env.JWT_SECRET;
+  return jwt.verify(token, secret);
+};
+
 module.exports = {
   generateToken,
+  decoded,
 };
