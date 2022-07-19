@@ -58,11 +58,12 @@ const getAll = async () => {
       {
         include: [
         { model: User, as: 'user', attributes: { exclude: ['password'] } },
-        { model: Category, as: 'categories', attributes: ['id', 'name'] },
+        { model: Category, as: 'categories' },
       ],
       },
     );
-    return posts;
+    
+    return posts.map((e) => e.dataValues);
   } catch (e) {
     console.log(e);
   }

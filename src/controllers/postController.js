@@ -15,6 +15,7 @@ const add = async (req, res) => {
 const getAll = async (_req, res) => {
   try {
     const posts = await postService.getAll();
+    console.log(posts);
     return res.status(200).json(posts);
   } catch (e) {
     console.log(e);
