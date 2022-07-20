@@ -98,18 +98,34 @@ const validateUpdate = (id, title, content) => {
   return value;
 };
 
-const updatedId = async (id, { title, content }, token) => {
-  try {
-    const response = validateUpdate(id, title, content);
-    if (response.message) return response;
-    const user = await User.findOne({ id });
-    const decode = tokenValid.decoded(token.authorization);
-    if (decode.email !== user.dataValues.email) {
-      return { status: 401, message: 'Unauthorized user' };
-    }
+const verifyUpdate = async (id, title, content, token) => {
+  const response = validateUpdate(id, title, content);
+  if (response.message) return response;
+  const user = await User.findOne({ where: { id } });
+  const decode = tokenValid.decoded(token.authorization);
+  if (decode.email !== user.dataValues.email) {
+    return { status: 401, message: 'Unauthorized user' };
+  }
+  return true;
+};
 
-    await BlogPost.update({ title, content });
+const updatedId = async (id, { title, content }, token) => {
+  const t = await sequelize.transaction();
+  try {
+    const verify = await verifyUpdate(id, title, content, token);
+    if (verify.message) return verify;
+    await BlogPost.update({ title, content }, { where: { id }, transaction: t });
+    const post = await BlogPost.findOne({ where: { id },
+        include: [
+        { model: User, as: 'user', where: { id }, attributes: { exclude: ['password'] } },
+        { model: Category, as: 'categories', through: { attributes: [] } },
+      ],
+      transaction: t,
+    });
+    await t.commit();
+    return post;
   } catch (e) {
+    await t.rollback();
     console.log(e);
   }
 };
