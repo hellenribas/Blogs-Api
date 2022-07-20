@@ -1,6 +1,7 @@
 const Joi = require('joi');
 const Sequelize = require('sequelize');
 const config = require('../database/config/config');
+const tokenValid = require('../utils/token');
 
 const sequelize = new Sequelize(config.development);
 const { BlogPost, User, PostCategory, Category } = require('../database/models/index');
@@ -45,7 +46,6 @@ const add = async (post, email) => {
    await Promise.all(post.categoryIds
     .map((e) => PostCategory.create({ postId: insertPost.id, categoryId: e }, { transaction: t })));
    await t.commit();
-  //  console.log(insertPost);
    return insertPost.dataValues;
  } catch (e) {
   await t.rollback();
@@ -70,19 +70,53 @@ const getAll = async () => {
 };
 
 const getId = async (id) => {
-  const post = await await BlogPost.findOne(
-    {
-      include: [
-      { model: User, as: 'user', where: { id }, attributes: { exclude: ['password'] } },
-      { model: Category, as: 'categories' },
-    ],
-    },
-  );
-  return post;
+  try {
+    const post = await await BlogPost.findOne(
+      {
+        include: [
+        { model: User, as: 'user', where: { id }, attributes: { exclude: ['password'] } },
+        { model: Category, as: 'categories' },
+      ],
+      },
+    );
+    return post;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const validateUpdate = (id, title, content) => {
+  const schema = Joi.object({
+    id: Joi.number().required(),
+    title: Joi.string().required(),
+    content: Joi.string().required(),
+  });
+  const { error, value } = schema.validate({ id, title, content });
+  if (error) {
+    return { status: 400, message: 'Some required fields are missing' };
+  }
+  return value;
+};
+
+const updatedId = async (id, { title, content }, token) => {
+  try {
+    const response = validateUpdate(id, title, content);
+    if (response.message) return response;
+    const user = await User.findOne({ id });
+    const decode = tokenValid.decoded(token.authorization);
+    if (decode.email !== user.dataValues.email) {
+      return { status: 401, message: 'Unauthorized user' };
+    }
+
+    await BlogPost.update({ title, content });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 module.exports = {
   getAll,
   add,
   getId,
+  updatedId,
 };
