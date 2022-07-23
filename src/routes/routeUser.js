@@ -9,6 +9,7 @@ router.post('/', userController.add);
 router.use('/', tokenValidate);
 router.get('/', userController.getUsers);
 router.get('/:id', userController.getUser);
+router.delete('/me', userController.deleteUser);
 // router.use(errorMiddleware);
 
 module.exports = router;

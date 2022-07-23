@@ -1,6 +1,11 @@
 const Joi = require('joi');
+const Sequelize = require('sequelize');
 const { User } = require('../database/models/index');
 const generate = require('../utils/token');
+const config = require('../database/config/config');
+const tokenValid = require('../utils/token');
+
+const sequelize = new Sequelize(config.development);
 
 const validate = ({ displayName, email, password, image }) => {
   const schema = Joi.object({
@@ -58,8 +63,21 @@ const getUser = async (id) => {
    }
 };
 
+const deleteUser = async (token) => {
+  const t = await sequelize.transaction();
+  try {
+    const { id } = tokenValid.decoded(token.authorization);
+    await User.destroy({ where: { id }, transaction: t });
+    await t.commit();
+  } catch (e) {
+    await t.rollback();
+    console.log(e);
+  }
+};
+
 module.exports = {
   add,
   getUsers,
   getUser,
+  deleteUser,
 };
