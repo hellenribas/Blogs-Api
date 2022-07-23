@@ -98,12 +98,12 @@ const validateUpdate = (id, title, content) => {
   return value;
 };
 
-const verifyUpdate = async (id, title, content, token) => {
+const verifyUser = async (id, title, content, token) => {
   const response = validateUpdate(id, title, content);
   if (response.message) return response;
   const user = await User.findOne({ where: { id } });
   const decode = tokenValid.decoded(token.authorization);
-  if (decode.email !== user.dataValues.email) {
+  if (!user || decode.email !== user.dataValues.email) {
     return { status: 401, message: 'Unauthorized user' };
   }
   return true;
@@ -112,7 +112,7 @@ const verifyUpdate = async (id, title, content, token) => {
 const updatedId = async (id, { title, content }, token) => {
   const t = await sequelize.transaction();
   try {
-    const verify = await verifyUpdate(id, title, content, token);
+    const verify = await verifyUser(id, title, content, token);
     if (verify.message) return verify;
     await BlogPost.update({ title, content }, { where: { id }, transaction: t });
     const post = await BlogPost.findOne({ where: { id },
@@ -130,9 +130,41 @@ const updatedId = async (id, { title, content }, token) => {
   }
 };
 
+const verifyDelete = async (id, token) => {
+  const { email } = tokenValid.decoded(token.authorization);
+  const user = await User.findOne({ where: { email }, attributes: ['id'] });
+  const postIdentify = await BlogPost.findOne({ where: { id }, attributes: ['userId'] });
+  if (user.dataValues.id !== postIdentify.dataValues.userId) {
+    return { status: 401, message: 'Unauthorized user' };
+  }
+
+  return true;
+};
+
+const deleteId = async (id, token) => {
+  const t = await sequelize.transaction();
+  try {
+    const post = await BlogPost.findOne({ where: { id },
+      transaction: t,
+    });
+    if (!post) {
+      return { status: 404, message: 'Post does not exist' };
+    }
+    const verify = await verifyDelete(post.dataValues.id, token);
+    if (verify.message) return verify;
+    await BlogPost.destroy({ where: { id }, transaction: t });
+    await t.commit();
+    return true;
+  } catch (e) {
+    await t.rollback();
+    console.log(e);
+  }
+};
+
 module.exports = {
   getAll,
   add,
   getId,
   updatedId,
+  deleteId,
 };

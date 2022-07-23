@@ -10,6 +10,7 @@ const login = async (req, res) => {
     }
     return res.status(response.status).json({ token: response.token });
   } catch (e) {
+    // next(e);
     console.log(e);
   }
 };

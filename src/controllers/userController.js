@@ -8,15 +8,17 @@ const add = async (req, res) => {
     }
     return res.status(201).json({ token: user });
   } catch (e) {
+    // next(e);
     console.log(e);
   }
 };
 
-const getUsers = async (req, res) => {
+const getUsers = async (_req, res) => {
   try {
     const users = await userService.getUsers();
     return res.status(200).json(users);
   } catch (e) {
+    // next(e);
     console.log(e);
   }
 }; 
@@ -32,6 +34,7 @@ const getUser = async (req, res) => {
     }
     return res.status(200).json(user.dataValues);
   } catch (e) {
+    // next(e);
     console.log(e);
   }
 }; 

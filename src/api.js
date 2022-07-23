@@ -3,7 +3,6 @@ const routeLogin = require('./routes/routeLogin');
 const routeUser = require('./routes/routeUser');
 const routeCategories = require('./routes/routeCategories');
 const routePost = require('./routes/routePost');
-
 // ...
 
 const app = express();

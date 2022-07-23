@@ -1,6 +1,7 @@
 const express = require('express');
 const postController = require('../controllers/postController');
 const tokenValidate = require('../middlewares/tokenValidate');
+// const errorMiddleware = require('../middlewares/errorMiddleware');
 
 const router = express.Router();
 
@@ -9,5 +10,7 @@ router.post('/', postController.add);
 router.get('/', postController.getAll);
 router.get('/:id', postController.getId);
 router.put('/:id', postController.updatedId);
+router.delete('/:id', postController.deleteId);
+// router.use(errorMiddleware);
 
 module.exports = router;
