@@ -74,10 +74,17 @@ const deleteId = async (req, res) => {
   }
 };
 
+const getParam = async (req, res) => {
+  const { q } = req.query;
+  const response = await postService.getParam(q);
+  return res.status(200).json(response);
+};
+
 module.exports = {
   getAll,
   add,
   getId,
   updatedId,
   deleteId,
+  getParam,
 };

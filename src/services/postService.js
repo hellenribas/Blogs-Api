@@ -1,5 +1,7 @@
 const Joi = require('joi');
 const Sequelize = require('sequelize');
+
+const { Op } = Sequelize;
 const config = require('../database/config/config');
 const tokenValid = require('../utils/token');
 
@@ -161,10 +163,24 @@ const deleteId = async (id, token) => {
   }
 };
 
+const getParam = async (param) => {
+  const post = await BlogPost
+  .findAll({
+    where: { [Op.or]: [{ title: { [Op.like]: `%${param}%` } }, 
+        { content: { [Op.like]: `%${param}%` } }] }, 
+    include: [{ model: User, as: 'user', attributes: { exclude: ['password'] } }, 
+    { model: Category, as: 'categories' },
+    ],
+  });
+  console.log(post);
+  return post;
+};
+
 module.exports = {
   getAll,
   add,
   getId,
   updatedId,
   deleteId,
+  getParam,
 };
