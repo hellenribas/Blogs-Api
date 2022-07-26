@@ -1,6 +1,6 @@
 const loginService = require('../services/loginService');
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -10,8 +10,7 @@ const login = async (req, res) => {
     }
     return res.status(response.status).json({ token: response.token });
   } catch (e) {
-    // next(e);
-    console.log(e);
+    next(e);
   }
 };
 

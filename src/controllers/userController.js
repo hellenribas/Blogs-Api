@@ -1,6 +1,6 @@
 const userService = require('../services/userService');
 
-const add = async (req, res) => {
+const add = async (req, res, next) => {
   try {
     const user = await userService.add(req.body);
     if (user.message) {
@@ -8,22 +8,20 @@ const add = async (req, res) => {
     }
     return res.status(201).json({ token: user });
   } catch (e) {
-    // next(e);
-    console.log(e);
+    next(e);
   }
 };
 
-const getUsers = async (_req, res) => {
+const getUsers = async (_req, res, next) => {
   try {
     const users = await userService.getUsers();
     return res.status(200).json(users);
   } catch (e) {
-    // next(e);
-    console.log(e);
+    next(e);
   }
 }; 
 
-const getUser = async (req, res) => {
+const getUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const user = await userService.getUser(id);
@@ -34,8 +32,7 @@ const getUser = async (req, res) => {
     }
     return res.status(200).json(user.dataValues);
   } catch (e) {
-    // next(e);
-    console.log(e);
+    next(e);
   }
 }; 
 

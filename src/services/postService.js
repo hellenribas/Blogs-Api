@@ -172,7 +172,6 @@ const getParam = async (param) => {
     { model: Category, as: 'categories' },
     ],
   });
-  console.log(post);
   return post;
 };
 

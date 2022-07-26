@@ -3,6 +3,7 @@ const routeLogin = require('./routes/routeLogin');
 const routeUser = require('./routes/routeUser');
 const routeCategories = require('./routes/routeCategories');
 const routePost = require('./routes/routePost');
+const errorMiddleware = require('./middlewares/errorMiddleware');
 // ...
 
 const app = express();
@@ -13,6 +14,7 @@ app.use('/login', routeLogin);
 app.use('/user', routeUser);
 app.use('/categories', routeCategories);
 app.use('/post', routePost);
+app.use(errorMiddleware);
 
 // ...
 
